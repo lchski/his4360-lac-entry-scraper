@@ -63,20 +63,3 @@ search_electronic_results %>%
   mutate(details = map(html, extract_structured_details)) %>%
   unnest(c(details)) %>%
   widen_records()
-
-  
-  
-
-
-
-
-### yaaaay write the downloaded HTML to disk (jk we probably don't need this now we have `read_html_from_disk_or_pull`)
-zzzzz %>%
-  select(id_number, html) %>%
-  pwalk(function(id_number, html) {
-    write_html(
-      html,
-      paste0("data/source/record-pages/", id_number, ".html")
-    )
-  })
-  
