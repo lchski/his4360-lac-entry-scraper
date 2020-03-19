@@ -6,6 +6,10 @@ library(helpers)
 
 source("lib/load-helpers.R")
 
+## NTS: way faster instead of using redirect is to just generate URL directly from ID
+## ID 108977
+## https://www.bac-lac.gc.ca/eng/CollectionSearch/Pages/record.aspx?app=FonAndCol&IdNumber=108977
+
 search_electronic_results <- read_csv("../his4360-lac-search-results/data/out/search_electronic_results.csv") %>%
   clean_names()
 
@@ -17,6 +21,22 @@ search_electronic_results %>%
   mutate(details = map(html, extract_structured_details)) %>%
   unnest(c(details)) %>%
   widen_records()
+
+search_electronic_results %>%
+  filter(hierarchy_level == "Fonds / Collection") %>%
+  slice(30:45) %>%
+  select(id_number) %>%
+  mutate(display_url = paste0("https://www.bac-lac.gc.ca/eng/CollectionSearch/Pages/record.aspx?app=FonAndCol&IdNumber=", id_number)) %>%
+  mutate(html = map2(id_number, display_url, read_html_from_disk_or_pull)) %>%
+  mutate(details = map(html, extract_structured_details)) %>%
+  unnest(c(details)) %>%
+  widen_records()
+
+government_fonds <- read_csv("../his4360-lac-search-results/data/out/browse_government_fonds.csv") %>%
+  clean_names()
+
+government_fonds %>%
+  filter(hierarchy_level == "Fonds / Collection")
 
 ##
 ## ideas:
