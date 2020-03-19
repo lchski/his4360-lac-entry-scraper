@@ -55,17 +55,15 @@ retrieve_records <- function(records_to_lookup) {
     mutate(html = map2(id_number, display_url, read_html_from_disk_or_pull))
 }
 
-retrieve_record_details <- function(records_to_lookup) {
+extract_record_details <- function(records_to_lookup) {
   records_to_lookup %>%
-    retrieve_records() %>%
     mutate(details = map(html, extract_structured_details)) %>%
     unnest(c(details)) %>%
     widen_records()
 }
 
-retrieve_record_extents <- function(records_to_lookup) {
+extract_record_extents <- function(records_to_lookup) {
   records_to_lookup %>%
-    retrieve_records() %>%
     mutate(extent = map(html, function(html) {
       html %>%
         html_node(xpath = '//dt[contains(text(),"Extent:")]/following-sibling::dd[1]') %>%

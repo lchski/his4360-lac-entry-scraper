@@ -9,20 +9,14 @@ source("lib/load-helpers.R")
 government_fonds <- read_csv("../his4360-lac-search-results/data/out/browse_government_fonds.csv") %>%
   clean_names()
 
-government_fonds %>%
+gov_fonds_records <- government_fonds %>%
   filter(hierarchy_level == "Fonds / Collection") %>%
   filter(language_of_cataloging == "eng") %>%
-  filter(str_detect(title, "electronic")) %>%
-  retrieve_record_details()
+  retrieve_records()
 
+gov_fonds_details <- gov_fonds_records %>%
+  extract_record_details()
 
-
-government_fonds %>%
-  filter(hierarchy_level == "Fonds / Collection") %>%
-  filter(language_of_cataloging == "eng") %>%
-  slice(1:5) %>%
-  retrieve_record_extents()
-  
 
 ##
 ## ideas:
