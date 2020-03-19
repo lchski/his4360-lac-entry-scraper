@@ -99,12 +99,29 @@ zzzz <- search_electronic_results %>%
 
 
 
+## Looks for the record file on disk. If present, loads it. Else, loads from web (and saves a copy to disk).
+read_html_from_disk_or_pull <- function(id_number, display_url) {
+  record_file_path <- paste0("data/source/record-pages/", id_number, ".html")
+  
+  if (fs::file_exists(record_file_path)) {
+    return(read_html(record_file_path))
+  }
+  
+  ## Doesn't exist, pull from web.
+  html_to_return <- read_html(display_url)
+  
+  html_to_return %>% write_html(file = record_file_path)
+  
+  return(html_to_return)
+}
+
+
 ## THIS ONE IS GOOD
 zzzzz <- search_electronic_results %>%
   filter(hierarchy_level == "Fonds / Collection") %>%
-  slice(1:3) %>%
+  slice(1:5) %>%
   select(id_number, display_url) %>%
-  mutate(html = map(display_url, read_html))
+  mutate(html = map2(id_number, display_url, read_html_from_disk_or_pull))
 
 zzzzz
 
@@ -118,7 +135,7 @@ zzzzz %>%
     )
   })
 
-### yaaaay write the downloaded HTML to disk
+### yaaaay write the downloaded HTML to disk (jk we probably don't need this now we have `read_html_from_disk_or_pull`)
 zzzzz %>%
   select(id_number, html) %>%
   pwalk(function(id_number, html) {
@@ -127,6 +144,14 @@ zzzzz %>%
       paste0("data/source/record-pages/", id_number, ".html")
     )
   })
+
+## boom :micdrop:
+zzzzz %>%
+  mutate(details = map(html, extract_structured_details)) %>%
+  unnest(c(details)) %>%
+  widen_records()
+  
+  
 
 
   
