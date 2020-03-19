@@ -82,5 +82,6 @@ remove_system_text_from_details <- function(record_details) {
   record_details %>%
     mutate_if(is_character, str_remove, pattern = fixed("if ($('#jq-container-body-Subjects_content').text().length < 200) { $('#jq-container-header-Subjects_content').hide(); $('#jq-container-body-Subjects_content').show();}")) %>%
     mutate_if(is_character, str_remove, pattern = fixed("if ($('#jq-container-body-AddNames_content').text().length < 200) { $('#jq-container-header-AddNames_content').hide(); $('#jq-container-body-AddNames_content').show();}")) %>%
+    mutate_if(is_character, str_remove, pattern = fixed("if ($('#jq-container-body-ConditionsOfAccess_content').text().length < 300) { $('#jq-container-header-ConditionsOfAccess_content').hide(); $('#jq-container-body-ConditionsOfAccess_content').show();}")) %>%
     mutate_if(is_character, str_remove, pattern = "^\nShow detailHide detail")
 }
