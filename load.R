@@ -42,14 +42,26 @@ extract_structured_details <- function(page) {
 
 widen_records <- function(records) {
   records %>%
-    extract_structured_details %>%
     mutate(section = str_remove(section, fixed("#"))) %>%
     mutate(section = str_remove(section, fixed("Section"))) %>%
     pivot_wider(names_from = c(section, key), values_from = value) %>%
     clean_names()
 }
 
+
+
 r4589379 %>%
+  extract_structured_details %>%
   widen_records()
-  
+
+list(
+  r120179,
+  r132998,
+  r1284188,
+  r4938680,
+  r4589379
+) %>%
+  map_dfr(extract_structured_details, .id = "id") %>%
+  widen_records()
+
   
