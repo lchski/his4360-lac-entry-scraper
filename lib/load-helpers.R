@@ -43,3 +43,17 @@ read_html_from_disk_or_pull <- function(id_number, display_url, save_copy_locall
   
   return(html_to_return)
 }
+
+
+## NTS: way faster instead of using redirect is to just generate URL directly from ID
+## ID 108977
+## https://www.bac-lac.gc.ca/eng/CollectionSearch/Pages/record.aspx?app=FonAndCol&IdNumber=108977
+retrieve_record_details <- function(records_to_lookup) {
+  records_to_lookup %>%
+    select(id_number) %>%
+    mutate(display_url = paste0("https://www.bac-lac.gc.ca/eng/CollectionSearch/Pages/record.aspx?app=FonAndCol&IdNumber=", id_number)) %>%
+    mutate(html = map2(id_number, display_url, read_html_from_disk_or_pull)) %>%
+    mutate(details = map(html, extract_structured_details)) %>%
+    unnest(c(details)) %>%
+    widen_records()
+}
