@@ -83,4 +83,50 @@ zz %>% map_dfr(extract_structured_details, .id = "id") %>%
   widen_records() %>%
   write_csv("data/out/zz.csv")
 
+read_html_vectorize <- Vectorize(read_html)
+zzz <- search_electronic_results %>%
+  filter(hierarchy_level == "Fonds / Collection") %>%
+  slice(1:3) %>%
+  select(id_number, display_url) %>%
+  mutate(html = list(read_html_vectorize(display_url)))
+
+## don't work
+zzzz <- search_electronic_results %>%
+  filter(hierarchy_level == "Fonds / Collection") %>%
+  slice(1:3) %>%
+  select(id_number, display_url) %>%
+  mutate(html = read_html_vectorize(display_url))
+
+
+
+## THIS ONE IS GOOD
+zzzzz <- search_electronic_results %>%
+  filter(hierarchy_level == "Fonds / Collection") %>%
+  slice(1:3) %>%
+  select(id_number, display_url) %>%
+  mutate(html = map(display_url, read_html))
+
+zzzzz
+
+zzzzz %>% walk2(id_number, html, ~ write_html(.y, paste0("data/source/record-pages/", .x)))
+
+zzzzz %>%
+  walk2(id_number, html, function(id, html_to_write) {
+    write_html(
+      html_to_write,
+      paste0("data/source/record-pages/", id, ".html")
+    )
+  })
+
+### yaaaay write the downloaded HTML to disk
+zzzzz %>%
+  select(id_number, html) %>%
+  pwalk(function(id_number, html) {
+    write_html(
+      html,
+      paste0("data/source/record-pages/", id_number, ".html")
+    )
+  })
+
+
   
